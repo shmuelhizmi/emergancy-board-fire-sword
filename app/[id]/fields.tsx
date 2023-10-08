@@ -19,9 +19,10 @@ export type RequestedField = {
 export const fieldTypes = {
   text: {
     renderData: (field: RequestedField, data: string) => {
+      const isUrl = data.startsWith("http");
       return (
         <Text fontSize={"small"}>
-          {field.title}: {data}
+          {field.title}: {isUrl ? <a href={data}>{data}</a> : data}
         </Text>
       );
     },
