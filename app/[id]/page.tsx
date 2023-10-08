@@ -1,13 +1,34 @@
-import {} from "@chakra-ui/react";
 import { getReports, boards, ReportBoard } from "./database";
+import List from "../list";
+import styles from "../page.module.css";
 
 export default async function Reports({ params }: { params: { id: string } }) {
   const boardID = params.id;
   const reports = await getReports(boardID);
   const board = boards.find((board) => board.id === boardID) as ReportBoard;
   return (
-    <main>
-      <h1>{board.title}</h1>
+    <>
+      <main className={styles.main}>
+        <List
+          items={[
+            {
+              title: "הוספה +",
+              description: "",
+              color: "green.200",
+              id: "add",
+              link: `/${boardID}/report`,
+            },
+            ...reports.map((report) => ({
+              color: report.approved ? "green.200" : "gray.200",
+              id: report.id,
+              link: `/${boardID}/view/${report.id}`,
+              title: board.getTextualDescription(report.data),
+              description: "",
+            })),
+          ]}
+          title={board.title}
+        />
+        {/* <h1>{board.title}</h1>
       {reports.map((report) => (
         <div
           key={report.id}
@@ -15,7 +36,8 @@ export default async function Reports({ params }: { params: { id: string } }) {
         >
           <h2>{board.getTextualDescription(report)}</h2>
         </div>
-      ))}
-    </main>
+      ))} */}
+      </main>
+    </>
   );
 }

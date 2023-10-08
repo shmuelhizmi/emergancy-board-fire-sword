@@ -12,7 +12,8 @@
 }
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  width: 100%;
   grid-gap: 1rem;
   padding: 1rem;
   overflow-y: auto;
@@ -20,9 +21,8 @@
 }
 
 .card {
-  height: 140px;
+  height: 200px;
   padding: 5px;
-  width: 100%;
   border: 1px solid #000;
   text-align: center;
   display: flex;
