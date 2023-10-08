@@ -22,7 +22,7 @@ export interface ReportContent {
 export async function addReport(
   boardId: string,
   data: Record<string, string>,
-  contactPhone: string
+  contactPhone: string,
 ): Promise<string> {
   const board = boards.find((b) => b.id === boardId);
   if (!board) {
@@ -164,9 +164,12 @@ export async function approveReport(reportId: string, secret: string) {
 export async function sendVerificationSms(
   phone: string,
   reportId: string,
-  secret: string
+  secret: string,
 ) {
-  const message = `אנא אשר את הפוסט בקישור הבא: ${process.env.NEXT_PUBLIC_BASE_URL}/${reportId}/verify/${secret}
+  const baseUrl = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000";
+  const message = `אנא אשר את הפוסט בקישור הבא: ${baseUrl}/${reportId}/verify/${secret}
 
   בכל רגע נתון תוכל להסיר את הפוסט דרך אותו הקישור.
 

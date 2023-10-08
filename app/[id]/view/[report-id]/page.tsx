@@ -32,7 +32,7 @@ interface SchemaViewProps {
   data: Record<string, string>;
 }
 
-export function SchemaView(props: SchemaViewProps) {
+function SchemaView(props: SchemaViewProps) {
   const data = props.data || {};
   return (
     <div
