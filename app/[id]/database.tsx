@@ -2,15 +2,11 @@ import { kv } from "@vercel/kv";
 import React from "react";
 import { v4 as uuid } from "uuid";
 import {
-  Box,
-  Button,
   Checkbox,
   FormControl,
   FormLabel,
   Input,
   InputGroup,
-  InputRightElement,
-  Stack,
   Text,
   Textarea,
 } from "@chakra-ui/react";
@@ -82,20 +78,6 @@ export const boards: Board[] = [
     description: "לוח דירות באיזורים המוגנים",
     type: "report",
     needsApproval: "optional",
-    // reportDataSchema: z.object({
-    //   name: z.string({
-    //     description: "שם המארח",
-    //   }),
-    //   phone: z.string({
-    //     description: "טלפון המארח",
-    //   }),
-    //   address: z.string({
-    //     description: "כתובת הדירה",
-    //   }),
-    //   description: z.string({
-    //     description: "תיאור כללי",
-    //   }),
-    // }),
     reportDataSchema: [
       {
         title: "שם המארח",

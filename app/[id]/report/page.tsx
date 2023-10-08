@@ -68,7 +68,7 @@ interface SchemaInputProps {
   onSubmit: (data: Record<string, string>) => void;
 }
 
-export function SchemaInput(props: SchemaInputProps) {
+function SchemaInput(props: SchemaInputProps) {
   const [data, setData] = useState<Record<string, string>>({});
   const [missingFields, setMissingFields] = useState<string[]>([]);
   return (
