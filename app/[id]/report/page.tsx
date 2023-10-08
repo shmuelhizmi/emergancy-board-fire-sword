@@ -1,5 +1,5 @@
 "use client";
-import { Button, Text } from "@chakra-ui/react";
+import { Button, Text, Tooltip } from "@chakra-ui/react";
 import styles from "../../page.module.css";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -90,10 +90,18 @@ function SchemaInput(props: SchemaInputProps) {
     >
       {props.schema.map((field) => (
         <div key={field.id}>
-          {fieldTypes[field.type].renderInput(field, data[field.id], (data) => {
-            setData((prev) => ({ ...prev, [field.id]: data }));
-            setMissingFields((prev) => prev.filter((f) => f !== field.title));
-          })}
+          <Tooltip label={field.description}>
+            {fieldTypes[field.type].renderInput(
+              field,
+              data[field.id],
+              (data) => {
+                setData((prev) => ({ ...prev, [field.id]: data }));
+                setMissingFields((prev) =>
+                  prev.filter((f) => f !== field.title)
+                );
+              }
+            )}
+          </Tooltip>
         </div>
       ))}
       {missingFields.length > 0 && (

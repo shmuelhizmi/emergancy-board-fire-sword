@@ -15,7 +15,7 @@ export default async function Reports({ params }: { params: { id: string } }) {
         <List
           items={[
             {
-              title: "הוספה +",
+              title: "הוספת פוסט חדש",
               description: "",
               color: "green.200",
               id: "add",

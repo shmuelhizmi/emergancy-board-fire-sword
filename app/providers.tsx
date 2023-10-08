@@ -37,7 +37,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             aria-label="חזרה"
             icon={<ArrowBackIcon />}
             style={{ position: "absolute", top: "5px", left: "5px", zIndex: 1 }}
-            onClick={() => router.back()}
+            onClick={() => router.push("/")}
           />
         )}
         {children}

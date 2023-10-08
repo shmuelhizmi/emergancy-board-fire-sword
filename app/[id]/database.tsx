@@ -5,11 +5,6 @@ import { v4 as uuid } from "uuid";
 import twilio from "twilio";
 import { boards } from "./boards";
 
-const twilioClient = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN,
-);
-
 export interface ReportContent {
   id: string;
   secret: string;
@@ -22,7 +17,7 @@ export interface ReportContent {
 export async function addReport(
   boardId: string,
   data: Record<string, string>,
-  contactPhone: string,
+  contactPhone: string
 ): Promise<string> {
   const board = boards.find((b) => b.id === boardId);
   if (!board) {
@@ -164,8 +159,13 @@ export async function approveReport(reportId: string, secret: string) {
 export async function sendVerificationSms(
   phone: string,
   reportId: string,
-  secret: string,
+  secret: string
 ) {
+  const twilioClient = twilio(
+    process.env.TWILIO_ACCOUNT_SID,
+    process.env.TWILIO_AUTH_TOKEN
+  );
+
   const baseUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000";
@@ -175,7 +175,7 @@ export async function sendVerificationSms(
 
   תודה
   `;
-  const to = '+972' + phone.slice(1);
+  const to = "+972" + phone.slice(1);
   const messageIns = await twilioClient.messages.create({
     body: message,
     from: process.env.TWILIO_PHONE_NUMBER,
@@ -185,5 +185,4 @@ export async function sendVerificationSms(
     `Sent verification SMS to ${to} with message SID ${messageIns.sid}`,
     message
   );
-  
 }
