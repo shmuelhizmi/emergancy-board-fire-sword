@@ -1,10 +1,13 @@
-import { getReports, boards, ReportBoard } from "./database";
+import { getReports } from "./database";
 import List from "../list";
 import styles from "../page.module.css";
+import { ReportBoard, boards } from "./boards";
 
 export default async function Reports({ params }: { params: { id: string } }) {
   const boardID = params.id;
-  const reports = await getReports(boardID);
+  const reports = await getReports(boardID).then((reports) =>
+    reports.filter((report) => report.approved)
+  );
   const board = boards.find((board) => board.id === boardID) as ReportBoard;
   return (
     <>

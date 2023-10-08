@@ -4,13 +4,10 @@ export async function POST(request: Request) {
   const { boardID, data, contactPhone } = await request.json();
   return addReport(boardID, data, contactPhone)
     .then((res) => {
-      return new Response(JSON.stringify({ id: res }), {
-        headers: { "content-type": "application/json" },
-      });
+      return Response.json(res);
     })
     .catch((err) => {
-      return new Response(JSON.stringify(err), {
-        headers: { "content-type": "application/json" },
-      });
+      console.log(err);
+      return Response.json(err, { status: 500 });
     });
 }

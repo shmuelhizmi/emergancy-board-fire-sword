@@ -1,9 +1,6 @@
-import Image from "next/image";
 import styles from "./page.module.css";
-import { Text, Card } from "@chakra-ui/react";
-import { boards } from "./[id]/database";
-import Link from "next/link";
 import List from "./list";
+import { boards } from "./[id]/boards";
 
 export default function Home() {
   return (
@@ -39,6 +36,3 @@ export default function Home() {
     </main>
   );
 }
-
-// mac who is using port
-// sudo lsof -i :3000

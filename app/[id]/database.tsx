@@ -1,118 +1,23 @@
 import { kv } from "@vercel/kv";
 import React from "react";
 import { v4 as uuid } from "uuid";
-import {
-  Checkbox,
-  FormControl,
-  FormLabel,
-  Input,
-  InputGroup,
-  Text,
-  Textarea,
-} from "@chakra-ui/react";
 
-export interface BoardBase {
-  id: string;
-  title: string;
-  description: string;
-}
+import twilio from "twilio";
+import { boards } from "./boards";
 
-export type FieldBase<T extends string> = {
-  type: T;
-  renderData: (field: RequestedField, data: string) => React.ReactNode;
-  renderInput: (
-    field: RequestedField,
-    data: string,
-    onChange: (data: string) => void
-  ) => React.ReactNode;
-};
-
-export type RequestedField = {
-  type: keyof typeof fieldTypes;
-  id: string;
-  title: string;
-  description: string;
-  required: boolean;
-};
-
-export interface ReportBoard extends BoardBase {
-  type: "report";
-  reportDataSchema: RequestedField[];
-  needsApproval: "yes" | "no" | "optional";
-  getTextualDescription: (data: Record<string, string>) => string;
-}
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN,
+);
 
 export interface ReportContent {
   id: string;
+  secret: string;
   boardId: string;
   data: Record<string, string>;
   approved: boolean;
   contactPhone: string;
 }
-
-export interface LinkBoard extends BoardBase {
-  type: "link";
-  url: string;
-}
-
-export type Board = ReportBoard | LinkBoard;
-
-export const boards: Board[] = [
-  {
-    id: "instagram-missing-board",
-    title: "לוח נעדרים באינסטגרם",
-    description: "לוח לחיפוש או דיווח על נעדרים באינסטגרם, חשיפה גבוהה",
-    type: "link",
-    url: "https://www.instagram.com/weareoneisrael/",
-  },
-  {
-    id: "online-missing-board",
-    title: "לוח נעדרים",
-    description: "ממשק לחיפוש או דיווח על נעדרים",
-    type: "link",
-    url: "https://www.instagram.com/weareoneisrael/",
-  },
-  {
-    id: "civilian-help-apartments",
-    title: "לוח דירות אירוח",
-    description: "לוח דירות באיזורים המוגנים",
-    type: "report",
-    needsApproval: "optional",
-    reportDataSchema: [
-      {
-        title: "שם המארח",
-        description: "שם המארח לצורך יצירת קשר",
-        required: true,
-        type: "text",
-        id: "name",
-      },
-      {
-        title: "טלפון המארח",
-        description: "טלפון המארח לצורך יצירת קשר",
-        required: true,
-        type: "phone",
-        id: "phone",
-      },
-      {
-        title: "כתובת הדירה",
-        description: "כתובת הדירה לצורך יצירת קשר",
-        required: true,
-        type: "text",
-        id: "address",
-      },
-      {
-        title: "תיאור כללי",
-        description: "תיאור כללי של הצעת האירוח",
-        required: false,
-        type: "textarea",
-        id: "description",
-      },
-    ],
-    getTextualDescription: (data) => {
-      return `דירה של ${data.name} בכתובת ${data.address}`;
-    },
-  },
-];
 
 export async function addReport(
   boardId: string,
@@ -140,11 +45,13 @@ export async function addReport(
   }
   const report: ReportContent = {
     id: uuid(),
+    secret: uuid().split("-")[0],
     boardId,
     data: data,
     approved: board.needsApproval === "no",
     contactPhone,
   };
+  console.log("Adding report", report);
   // transaction
   const boardReports = await kv.get<{
     reports: string[];
@@ -159,6 +66,8 @@ export async function addReport(
     });
   }
   await kv.set(`report-${report.id}`, report);
+  console.log("Sending verification SMS");
+  await sendVerificationSms(contactPhone, report.id, report.secret);
   return report.id;
 }
 
@@ -219,89 +128,59 @@ export async function getReports(
   return reports.filter((r) => !!r) as ReportContent[];
 }
 
-export const fieldTypes = {
-  text: {
-    renderData: (field: RequestedField, data: string) => {
-      return <Text fontSize={'small'}>{field.title}: {data}</Text>;
-    },
-    renderInput: (
-      field: RequestedField,
-      data: string,
-      onChange: (data: string) => void
-    ) => {
-      return (
-        <FormControl id={field.id}>
-          <FormLabel>{field.title}</FormLabel>
-          <Input
-            type="text"
-            value={data}
-            onChange={(e) => onChange(e.target.value)}
-          />
-        </FormControl>
-      );
-    },
-  },
-  textarea: {
-    renderData: (field: RequestedField, data: string) => {
-      return <Text fontSize={'small'}>{field.title}: {data}</Text>;
-    },
-    renderInput: (
-      field: RequestedField,
-      data: string,
-      onChange: (data: string) => void
-    ) => {
-      return (
-        <FormControl id={field.id}>
-          <FormLabel>{field.title}</FormLabel>
-          <Textarea
-            value={data}
-            onChange={(e) => onChange(e.target.value)}
-          />
-        </FormControl>
-      );
-    },
-  },
-  checkbox: {
-    renderData: (field: RequestedField, data: string) => {
-      return <Text fontSize={'small'}>{field.title}: {data}</Text>;
-    },
-    renderInput: (
-      field: RequestedField,
-      data: string,
-      onChange: (data: string) => void
-    ) => {
-      return (
-        <FormControl id={field.id}>
-          <FormLabel>{field.title}</FormLabel>
-          <Checkbox
-            isChecked={data === "true"}
-            onChange={(e) => onChange(e.target.checked.toString())}
-          />
-        </FormControl>
-      );
-    },
-  },
-  phone: {
-    renderData: (field: RequestedField, data: string) => {
-      return <Text fontSize={'small'}>{field.title}: {data}</Text>;
-    },
-    renderInput: (
-      field: RequestedField,
-      data: string,
-      onChange: (data: string) => void
-    ) => {
-      return (
-        <FormControl id={field.id}>
-          <FormLabel>{field.title}</FormLabel>
-          <InputGroup>
-            <Input
-              type="tel"
-              value={data}
-              onChange={(e) => onChange(e.target.value)}
-            />
-          </InputGroup>
-        </FormControl>
-      );
-    },
-  },
-};
+export async function deleteReport(reportId: string, secret: string) {
+  const report = await kv.get<ReportContent>(`report-${reportId}`);
+  if (!report) {
+    throw new Error("Report not found");
+  }
+  if (report.secret !== secret) {
+    throw new Error("Invalid secret");
+  }
+  await kv.del(`report-${reportId}`);
+  const boardReports = await kv.get<{
+    reports: string[];
+  }>(`board-${report.boardId}`);
+  if (!boardReports) {
+    throw new Error("Board not found");
+  }
+  await kv.set(`board-${report.boardId}`, {
+    reports: boardReports.reports.filter((r) => r !== reportId),
+  });
+}
+export async function approveReport(reportId: string, secret: string) {
+  const report = await kv.get<ReportContent>(`report-${reportId}`);
+  if (!report) {
+    throw new Error("Report not found");
+  }
+  if (report.secret !== secret) {
+    throw new Error("Invalid secret");
+  }
+  await kv.set(`report-${reportId}`, {
+    ...report,
+    approved: true,
+  });
+}
+
+export async function sendVerificationSms(
+  phone: string,
+  reportId: string,
+  secret: string
+) {
+  const message = `אנא אשר את הפוסט בקישור הבא: ${process.env.NEXT_PUBLIC_BASE_URL}/${reportId}/verify/${secret}
+
+  בכל רגע נתון תוכל להסיר את הפוסט דרך אותו הקישור.
+
+  תודה
+  `;
+  const to = '+972' + phone.slice(1);
+  const messageIns = await twilioClient.messages.create({
+    body: message,
+    from: process.env.TWILIO_PHONE_NUMBER,
+    to: to,
+  });
+  console.log(
+    `Sent verification SMS to ${to} with message SID ${messageIns.sid}`,
+    message
+  );
+  
+}

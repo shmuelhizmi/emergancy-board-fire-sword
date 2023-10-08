@@ -1,15 +1,11 @@
 "use client";
 import { Button, Text } from "@chakra-ui/react";
-import {
-  boards,
-  ReportBoard,
-  RequestedField,
-  fieldTypes,
-  addReport,
-} from "../database";
 import styles from "../../page.module.css";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ReportBoard, boards } from "../boards";
+import { RequestedField, fieldTypes } from "../fields";
+import { Message } from "@/app/message";
 
 export default function Reports({ params }: { params: { id: string } }) {
   const boardID = params.id;
@@ -29,13 +25,13 @@ export default function Reports({ params }: { params: { id: string } }) {
         contactPhone,
       }),
     }).then((res) => res.json());
-    router.push(`/${boardID}/view/${id}`);
   };
   if (isSending) {
     return (
-      <main className={styles.main}>
-        <Text fontSize="2xl">אנא המתן...</Text>
-      </main>
+      <Message>
+        ברגעים אלו ממש אנו מעלים את הפוסט, ברגע שהוא יהיה מוכן אתה תקבל הודעת
+        סמס לאשר אותו
+      </Message>
     );
   }
   return (
@@ -47,7 +43,7 @@ export default function Reports({ params }: { params: { id: string } }) {
             schema={[
               {
                 id: "phone",
-                title: "על מנת לאשר את הדיווח נא הזן טלפון ליצירת קשר",
+                title: "על מנת לאשר את הפוסט נא הזן טלפון ליצירת קשר",
                 description: "אנא הוסף טלפון ליצירת קשר על מנת לאשר את הדיווח",
                 type: "phone",
                 required: true,

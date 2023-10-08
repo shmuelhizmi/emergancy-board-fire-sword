@@ -1,12 +1,9 @@
-import { Button, Text } from "@chakra-ui/react";
-import {
-  boards,
-  ReportBoard,
-  RequestedField,
-  fieldTypes,
-  getReport,
-} from "../../database";
+import { Text } from "@chakra-ui/react";
+import { getReport } from "../../database";
 import styles from "../../../page.module.css";
+import { ReportBoard, boards } from "../../boards";
+import { RequestedField, fieldTypes } from "../../fields";
+import { Message } from "@/app/message";
 
 export default async function Reports({
   params,
@@ -15,7 +12,10 @@ export default async function Reports({
 }) {
   const { id: boardID, ["report-id"]: reportId } = params;
   const board = boards.find((board) => board.id === boardID) as ReportBoard;
-  const report = (await getReport(boardID, reportId))!;
+  const report = await getReport(boardID, reportId).catch(() => undefined);
+  if (!report) {
+    return <Message>הפוסט לא נמצא</Message>;
+  }
 
   return (
     <>
