@@ -7,6 +7,7 @@ import {
   Text,
   Textarea,
 } from "@chakra-ui/react";
+
 export type RequestedField = {
   type: keyof typeof fieldTypes;
   id: string;

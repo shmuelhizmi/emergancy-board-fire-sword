@@ -162,5 +162,36 @@ export const boards: Board[] = [
     getTextualDescription: (data) => {
       return data.title;
     },
+  },
+  {
+    id: 'open-board-for-usful-services',
+    title: 'לוח פתוח לשיתוף שירותים שימושיים',
+    description: 'צפיה או הוספה של לינקים לשירותים שימושיים לעת זו',
+    getTextualDescription: ({ title }) => title,
+    type: 'report',
+    needsApproval: 'optional',
+    reportDataSchema: [
+      {
+        title: 'כותרת',
+        description: 'כותרת לצורך יצירת קשר',
+        required: true,
+        type: 'text',
+        id: 'title',
+      },
+      {
+        title: 'קישור',
+        description: 'קישור לצורך יצירת קשר',
+        required: true,
+        type: 'text',
+        id: 'url',
+      },
+      {
+        title: 'תיאור',
+        description: 'תיאור כללי של הצעתת השירות',
+        required: false,
+        type: 'textarea',
+        id: 'description',
+      },
+    ],
   }
 ];
